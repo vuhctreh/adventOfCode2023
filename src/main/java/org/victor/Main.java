@@ -8,9 +8,11 @@ public class Main {
     public static void main(String[] args) throws IOException {
 
         // Day One
-        List<String> input = readInput("src/main/resources/dayOne/input.txt");
-        SolutionOne.solve(input);
+//        List<String> input = readInput("src/main/resources/dayOne/input.txt");
+//        SolutionOne.solve(input);
 
+        List<String> input2 = readInput("src/main/resources/dayTwo/input.txt");
+        SolutionTwo.solve(input2);
     }
 
     public static List<String> readInput(String fileName) throws IOException {
