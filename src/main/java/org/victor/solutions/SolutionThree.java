@@ -9,11 +9,6 @@ public class SolutionThree {
 
         Map<String, Integer> possibleGears = new HashMap<>();
 
-        // Encode position of star when checking for symbols.
-        // Add to Map<String, Integer> where String = encoded pos and Integer = adjacent number.
-        // When adjacent star is found, check in map and calculate sum if present.
-        // If not, add to map.
-
         // For each string in input array
         for(int i = 0; i < input.size(); i++) {
             String s = input.get(i);
