@@ -1,18 +1,18 @@
 package org.victor.solutions;
 
-import java.util.List;
+import java.util.*;
 
 public class SolutionThree {
-
-    // When digit encountered
-    // -> while digit
-    // -> append to String
-    // -> check for symbol around it
-    // -> If symbol found
-    //     -> mark symbol found = true
-    // add to sum if symbol found = true
     public static void solve(List<String> input) {
         int sum = 0;
+        int gearRatioSum = 0;
+
+        Map<String, Integer> possibleGears = new HashMap<>();
+
+        // Encode position of star when checking for symbols.
+        // Add to Map<String, Integer> where String = encoded pos and Integer = adjacent number.
+        // When adjacent star is found, check in map and calculate sum if present.
+        // If not, add to map.
 
         // For each string in input array
         for(int i = 0; i < input.size(); i++) {
@@ -21,19 +21,37 @@ public class SolutionThree {
             for(int j = 0; j < s.length(); j++) {
                 boolean symbolFound = false;
 
+                Set<String> gears = new HashSet<>();
+
                 StringBuilder numBuffer = new StringBuilder();
 
                 // Check behind
                 if(j > 0) {
-                    symbolFound = isSymbolAtPosition(input, i, j - 1);
+                    boolean[] condArr = isSymbolAtPosition(input, i, j - 1);
+                    symbolFound = condArr[0];
+
+                    if(condArr[1]) {
+                        gears.add("y" + i + "x" + (j-1));
+                    }
+
                     // Check top left
                     if (i > 0 && !symbolFound) {
-                        symbolFound = isSymbolAtPosition(input, i - 1, j - 1);
+                        condArr = isSymbolAtPosition(input, i - 1, j - 1);
+                        symbolFound = condArr[0];
+
+                        if(condArr[1]) {
+                            gears.add("y" + (i-1) + "x" + (j-1));
+                        }
                     }
 
                     // Check bottom left
                     if(i < input.size() - 1 && !symbolFound) {
-                        symbolFound = isSymbolAtPosition(input, i + 1, j - 1);
+                        condArr = isSymbolAtPosition(input, i + 1, j - 1);
+                        symbolFound = condArr[0];
+
+                        if(condArr[1]) {
+                            gears.add("y" + (i+1) + "x" + (j-1));
+                        }
                     }
                 }
 
@@ -43,57 +61,85 @@ public class SolutionThree {
 
                     // Check above
                     if(i > 0 && !symbolFound) {
-                        symbolFound = isSymbolAtPosition(input, i - 1, j);
+                        boolean[] condArr = isSymbolAtPosition(input, i -1, j);
+                        symbolFound = condArr[0];
+
+                        if(condArr[1]) {
+                            gears.add("y" + (i - 1) + "x" + (j));
+                        }
                     }
                     // Check below
                     if (i < input.size() - 1 && !symbolFound) {
-                        symbolFound = isSymbolAtPosition(input, i + 1, j);
+                        boolean[] condArr = isSymbolAtPosition(input, i + 1, j);
+                        symbolFound = condArr[0];
+
+                        if(condArr[1]) {
+                            gears.add("y" + (i+1) + "x" + (j));
+                        }
                     }
+
                     j++;
 
                     if(j > s.length() - 1) break;
                 }
 
-                System.out.println("Current number: " + numBuffer);
-
                 // Check to the right
                 if(j < s.length() - 1 && !symbolFound) {
-                    System.out.println("Checking right: y = " + (i) + " x = " + (j));
-                    System.out.println("Character: " + input.get(i).charAt(j));
-                    symbolFound = isSymbolAtPosition(input, i, j);
+                    boolean[] condArr = isSymbolAtPosition(input, i, j);
+                    symbolFound = condArr[0];
+
+                    if(condArr[1]) {
+                        gears.add("y" + (i) + "x" + (j));
+                    }
 
                     // Check top right
                     if (i > 0 && !symbolFound) {
-                        System.out.println("Checking top right: y = " + (i - 1) + " x = " + (j));
-                        System.out.println("Character: " + input.get(i - 1).charAt(j));
-                        symbolFound = isSymbolAtPosition(input, i - 1, j);
+                        condArr = isSymbolAtPosition(input, i - 1, j);
+                        symbolFound = condArr[0];
+
+                        if(condArr[1]) {
+                            gears.add("y" + (i-1) + "x" + (j));
+                        }
                     }
 
                     // Check bottom right
                     if(i < input.size() - 1 && !symbolFound) {
-                        System.out.println("Checking bottom right: y = " + (i + 1) + " x = " + (j));
-                        System.out.println("Character: " + input.get(i + 1).charAt(j));
-                        symbolFound = isSymbolAtPosition(input, i + 1, j);
+                        condArr = isSymbolAtPosition(input, i + 1, j);
+                        symbolFound = condArr[0];
+
+                        if(condArr[1]) {
+                            gears.add("y" + (i+1) + "x" + (j));
+                        }
                     }
                 }
 
-                System.out.println("Symbol found: " + symbolFound);
-
                 if(symbolFound && !numBuffer.isEmpty()) {
-                    System.out.println("Number added: " + numBuffer);
-                    sum += Integer.parseInt(numBuffer.toString());
+                    int num = Integer.parseInt(numBuffer.toString());
+
+                    sum += num;
+
+                    if(!gears.isEmpty()) {
+                        for(String g: gears) {
+                            if(possibleGears.containsKey(g)) {
+                                gearRatioSum += possibleGears.get(g) * num;
+                            } else {
+                                possibleGears.put(g, num);
+                            }
+                        }
+                    }
                 }
             }
         }
 
-        System.out.println(sum);
+        System.out.println("Sum of part numbers: " + sum);
+        System.out.println("Sum of gear ratios: " + gearRatioSum);
     }
 
-    public static boolean isSymbol(Character c) {
-        return(!Character.isDigit(c) && c!= '.');
+    public static boolean[] isSymbolAndGear(Character c) {
+        return new boolean[]{!Character.isDigit(c) && c != '.', c == '*'};
     }
 
-    public static boolean isSymbolAtPosition(List<String> input, int positionY, int positionX) {
-        return(isSymbol(input.get(positionY).charAt(positionX)));
+    public static boolean[] isSymbolAtPosition(List<String> input, int positionY, int positionX) {
+        return(isSymbolAndGear(input.get(positionY).charAt(positionX)));
     }
 }
