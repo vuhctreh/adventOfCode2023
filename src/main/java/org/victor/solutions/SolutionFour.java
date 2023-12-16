@@ -6,6 +6,16 @@ public class SolutionFour {
     public static void solve(List<String> input) {
         int sum = 0;
 
+        int enumerate = 0;
+
+        int[] cardSets = new int[input.size()];
+
+        for(int n = 0; n < input.size(); n ++) {
+            cardSets[n] ++;
+        }
+
+        int totalCards = 0;
+
         for(String s : input) {
             int matches = 0;
 
@@ -20,6 +30,10 @@ public class SolutionFour {
             }
 
             if(matches > 0) {
+                for(int i = enumerate + 1; i <= enumerate + matches; i++) {
+                    cardSets[i] += cardSets[enumerate];
+                }
+
                 sum ++;
 
                 for(int i = 0; i < matches - 1; i ++) {
@@ -28,13 +42,13 @@ public class SolutionFour {
 
             }
 
-            System.out.println("Matches: " + matches);
-            System.out.println("Added: " + ((sum +  2 ^ (matches - 1)) + 1));
-            System.out.println("Sum: " + sum);
-            System.out.println("--------------------------------------------");
+            totalCards += (cardSets[enumerate]);
+
+            enumerate ++;
         }
 
         System.out.println(sum);
+        System.out.println(totalCards);
     }
 
     public static List<List<String>> parseLine(String line) {
