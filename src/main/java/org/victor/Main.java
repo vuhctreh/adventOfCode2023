@@ -19,8 +19,11 @@ public class Main {
 //        List<String> input3 = readInput("src/main/resources/dayThree/input.txt");
 //        SolutionThree.solve(input3);
 
-        List<String> input4 = readInput("src/main/resources/dayFour/input.txt");
-        SolutionFour.solve(input4);
+//        List<String> input4 = readInput("src/main/resources/dayFour/input.txt");
+//        SolutionFour.solve(input4);
+
+        List<String> input5 = readInput("src/main/resources/dayFive/input.txt");
+        SolutionFive.solve(input5);
     }
 
     public static List<String> readInput(String fileName) throws IOException {
