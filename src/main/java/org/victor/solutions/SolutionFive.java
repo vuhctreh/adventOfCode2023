@@ -1,47 +1,81 @@
 package org.victor.solutions;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SolutionFive {
-
     public static void solve(List<String> input) {
         List<List<List<String>>> parsedAlmanac = parseInput(input);
 
         long lowestPos = Long.MAX_VALUE;
 
-        System.out.println(parsedAlmanac);
+        List<String> seeds = parsedAlmanac.get(0).get(0);
 
-        // For every seed
-        for(int i = 0; i < parsedAlmanac.get(0).get(0).size(); i ++) {
-            long seed = Long.parseLong(parsedAlmanac.get(0).get(0).get(i));
+        Deque<List<Long>> seedRanges = new LinkedList<>();
 
-            // For every almanac map
-            for(int j = 1; j < parsedAlmanac.size(); j ++) {
+        // Create initial seed ranges
+        for (int i = 0; i < seeds.size(); i += 2) {
+            seedRanges.add(List.of(Long.parseLong(seeds.get(i)), Long.parseLong(seeds.get(i + 1))));
+        }
+
+        // For every map in almanac
+        for(int i = 1; i < parsedAlmanac.size(); i++) {
+
+            boolean intersecting;
+
+            List<List<Long>> newMap = new ArrayList<>();
+
+            while(!seedRanges.isEmpty()) {
+
+                intersecting = false;
+
+                // For every line in almanac map
+                for(int j = 0; j < parsedAlmanac.get(i).size(); j++) {
+
+                    if(intersecting) break;
 
 
-                // For each line of almanac map
-                for(int k = 0; k < parsedAlmanac.get(j).size(); k ++) {
+                    List<Long> toCompute = seedRanges.poll();
 
-                    // Parse Almanac ranges
-                    long dRangeStart = Long.parseLong(parsedAlmanac.get(j).get(k).get(0));
-                    long sRangeStart = Long.parseLong(parsedAlmanac.get(j).get(k).get(1));
-                    long range = Long.parseLong(parsedAlmanac.get(j).get(k).get(2));
+                    long currStart = toCompute.get(0);
+                    long currRange = toCompute.get(1);
 
-                    // Move to next iteration if seed is not in range
-                    if(!(seed >= sRangeStart && seed < (sRangeStart + range))) continue;
-                    System.out.println("sRange: " + sRangeStart);
-                    System.out.println("seed: " +  seed);
-                    System.out.println("destination: " + (dRangeStart + (seed - sRangeStart)));
-                    seed = dRangeStart + (seed - sRangeStart);
-                    break;
+
+                    List<String> computeAgainst = parsedAlmanac.get(i).get(j);
+
+
+                    long destinationRangeStart = Long.parseLong(computeAgainst.get(0));
+                    long sourceRangeStart = Long.parseLong(computeAgainst.get(1));
+                    long sourceRange = Long.parseLong(computeAgainst.get(2));
+
+                    long e = Math.max(currStart, sourceRangeStart);
+                    long f = Math.min(currStart + currRange, sourceRangeStart + sourceRange);
+
+                    // If intersection
+                    if (e <= f) {
+                        intersecting = true;
+
+                        newMap.add(List.of(e + (destinationRangeStart - sourceRangeStart), f - e));
+
+                        if(currStart < sourceRangeStart) {
+                            newMap.add(List.of(currStart, sourceRangeStart - currStart - 1));
+                        }
+
+                        if(currStart + currRange > sourceRangeStart + sourceRange) {
+                            newMap.add(List.of(sourceRangeStart + sourceRange + 1,
+                                    (currStart + currRange) - (sourceRangeStart + sourceRange)));
+                        }
+                    } else {
+                        seedRanges.addFirst(toCompute);
+                    }
                 }
 
+                if(!intersecting) newMap.add(seedRanges.poll());
             }
-            lowestPos = Math.min(lowestPos, seed);
+            seedRanges.addAll(newMap);
         }
+
+        while(!seedRanges.isEmpty()) lowestPos = Math.min(lowestPos, seedRanges.poll().get(0));
 
         System.out.println(lowestPos);
     }
@@ -53,17 +87,17 @@ public class SolutionFive {
 
         maps.add(new ArrayList<>(
                 List.of(Arrays.stream(Arrays.stream(input.get(0).split(":")[1]
-                        .split(" "))
-                        .filter(s -> !s.isEmpty())
-                        .toArray(String[]::new))
+                                        .split(" "))
+                                .filter(s -> !s.isEmpty())
+                                .toArray(String[]::new))
                         .toList()))
         );
 
-        for(int i = 1; i < input.size(); i++) {
+        for (int i = 1; i < input.size(); i++) {
             String s = input.get(i);
 
             if (s.isEmpty() || Character.isAlphabetic(s.charAt(0))) {
-                if(!mapLine.isEmpty()) maps.add(mapLine);
+                if (!mapLine.isEmpty()) maps.add(mapLine);
                 mapLine = new ArrayList<>();
                 continue;
             }
@@ -78,3 +112,4 @@ public class SolutionFive {
         return maps;
     }
 }
+
